@@ -33,9 +33,15 @@ body {
 }
 
 @keyframes pulse {
-    0% { box-shadow: 0 0 10px #0f0; }
-    50% { box-shadow: 0 0 25px #0f0, 0 0 40px #0f0; }
-    100% { box-shadow: 0 0 10px #0f0; }
+    0% {
+        box-shadow: 0 0 10px #0f0;
+    }
+    50% {
+        box-shadow: 0 0 25px #0f0, 0 0 40px #0f0;
+    }
+    100% {
+        box-shadow: 0 0 10px #0f0;
+    }
 }
 
 button {
@@ -68,12 +74,25 @@ footer {
 }
 
 @keyframes glow {
-    from { text-shadow: 0 0 10px #0ff; }
-    to { text-shadow: 0 0 20px #0ff, 0 0 30px #00f; }
+    from {
+        text-shadow: 0 0 10px #0ff;
+    }
+    to {
+        text-shadow: 0 0 20px #0ff, 0 0 30px #00f;
+    }
 }
 
 #dateTimeDisplay {
     font-size: 1rem;
     color: #aaa;
     margin-bottom: 15px;
+}
+
+#refreshButton {
+    background-color: #008CBA;
+}
+
+#stopListenButton {
+    background-color: #FF0000;
+    display: none;
 }
