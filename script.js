@@ -3,6 +3,8 @@ recognition.lang = "en-US";
 
 const output = document.getElementById("output");
 const stopButton = document.getElementById("stopButton");
+const refreshButton = document.getElementById("refreshButton");
+const stopListenButton = document.getElementById("stopListenButton");
 const arc = document.getElementById("reactor");
 
 let isListening = false;
@@ -14,14 +16,16 @@ function startListening() {
         arc.style.background = "radial-gradient(circle, #0f0, #000)";
         try {
             recognition.start();
+            stopListenButton.style.display = "block";
         } catch (error) {
             console.error("Error starting recognition:", error);
             isListening = false;
+            stopListenButton.style.display = "none";
         }
     }
 }
 
-recognition.onresult = function(event) {
+recognition.onresult = function (event) {
     const command = event.results[0][0].transcript.toLowerCase();
     output.innerText = "You said: " + command;
     processCommand(command);
@@ -32,13 +36,15 @@ recognition.onresult = function(event) {
         } catch (error) {
             console.error("Error restarting recognition:", error);
             isListening = false;
+            stopListenButton.style.display = "none";
         }
     } else {
         isListening = false;
+        stopListenButton.style.display = "none";
     }
 };
 
-recognition.onerror = function(event) {
+recognition.onerror = function (event) {
     output.innerText = "Speech recognition error: " + event.error;
     console.error("Speech recognition error:", event.error);
 };
@@ -46,7 +52,7 @@ recognition.onerror = function(event) {
 function speak(text) {
     const speech = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
-    let maleVoice = voices.find(voice => voice.name.toLowerCase().includes('male'));
+    let maleVoice = voices.find((voice) => voice.name.toLowerCase().includes("male"));
 
     if (!maleVoice) {
         maleVoice = voices[0];
@@ -82,7 +88,7 @@ function processCommand(command) {
     // Time & Date
     else if (command.includes("time") || command.includes("date") || command.includes("day")) {
         const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
         const dateString = now.toLocaleDateString(undefined, options);
         const timeString = now.toLocaleTimeString();
         speak(`Today is ${dateString}. The time is ${timeString}`);
@@ -91,10 +97,17 @@ function processCommand(command) {
     else if (command.includes("goodbye") || command.includes("shut down") || command.includes("bye")) {
         speak("Shutting down. Goodbye, boss.");
         isListening = false;
+        stopListenButton.style.display = "none";
     }
-    // Google Search
+    // Google Search - Opens New Tab
+    else if (command.includes("search google") || command.includes("search for")) {
+        const query = command.replace(/search google|search for/g, "").trim();
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
+        speak(`Searching Google for ${query}`);
+    }
+    // Google Search - Speaks Summary
     else if (command.includes("according to google") || command.includes("who is") || command.includes("what is")) {
-        const query = command.replace("according to google", "").trim();
+        const query = command.replace(/according to google|who is|what is/g, "").trim();
         window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
         speak("Here is what I found on Google.");
     }
@@ -102,15 +115,16 @@ function processCommand(command) {
     else if (command.startsWith("calculate")) {
         let expression = command
             .replace("calculate", "")
-            .replace(/plus/g, '+')
-            .replace(/minus/g, '-')
-            .replace(/times/g, '*')
-            .replace(/multiply/g, '*')
-            .replace(/by|divided by/g, '/');
+            .replace(/plus/g, "+")
+            .replace(/minus/g, "-")
+            .replace(/times/g, "*")
+            .replace(/multiply/g, "*")
+            .replace(/by|divided by/g, "/");
         try {
             let result = eval(expression);
             speak(`The result is ${result}`);
-        } catch {
+        } catch (error) {
+            console.error("Calculation Error :", error);
             speak("Sorry, I couldn't calculate that.");
         }
     }
@@ -127,20 +141,19 @@ function processCommand(command) {
             url = "https://www.instagram.com";
         } else if (site.includes("facebook")) {
             url = "https://www.facebook.com";
-        } else if (site.includes("twitter")){
+        } else if (site.includes("twitter")) {
             url = "https://www.twitter.com";
         } else {
             url = "https://www." + site + ".com";
         }
 
         if (url) {
-            window.open(url, '_blank');
+            window.open(url, "_blank");
             speak(`Opening ${site}.`);
         } else {
             speak(`Sorry, I could not open ${site}`);
         }
-    }
-    else {
+    } else {
         speak("Sorry, I did not understand that.");
     }
 }
@@ -151,10 +164,22 @@ stopButton.addEventListener("click", () => {
     arc.style.background = "radial-gradient(circle, #0f0, #000)";
 });
 
+refreshButton.addEventListener("click", () => {
+    location.reload();
+});
+
+stopListenButton.addEventListener("click", () => {
+    isListening = false;
+    recognition.stop();
+    stopListenButton.style.display = "none";
+    arc.style.background = "radial-gradient(circle, #0f0, #000)";
+    output.innerText = "Listening Stopped";
+});
+
 // DateTime Widget
 function updateDateTime() {
     const now = new Date();
-    const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+    const options = { weekday: "long", month: "long", day: "numeric", year: "numeric" };
     const formatted = `${now.toLocaleDateString(undefined, options)} - ${now.toLocaleTimeString()}`;
     document.getElementById("dateTimeDisplay").innerText = formatted;
 }
