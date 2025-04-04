@@ -52,10 +52,10 @@ recognition.onerror = function (event) {
 function speak(text) {
     const speech = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
-    let maleVoice = voices.find((voice) => voice.name.toLowerCase().includes("male"));
+    let maleVoice = voices.find(voice => voice.name.toLowerCase().includes('male'));
 
     if (!maleVoice) {
-        maleVoice = voices[0];
+        maleVoice = voices[0]; // If no male, use the first voice.
     }
 
     speech.voice = maleVoice;
